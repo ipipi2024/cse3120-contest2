@@ -35,6 +35,21 @@ playerTurn PROC
 playerTurn ENDP
 
 ;------------------------------------------
+computerTurn PROC
+; Description: 
+; Input: 
+; Output: 
+; Modifies: 
+;------------------------------------------
+    pushad
+
+    ; code goes here
+
+    popad
+    ret
+computerTurn ENDP
+
+;------------------------------------------
 calculateWinner PROC
 ; Description: 
 ; Input: 

@@ -20,6 +20,24 @@ tieMsg BYTE "It's a tie!",0
 .code
 
 ;------------------------------------------
+mPrintString MACRO string, newLine
+; Description: Prints/writes a given string to the screen, then prints a newline
+; Input: string - Address of a string
+; Output: None
+; Modifies: EDX
+;------------------------------------------
+    push edx
+    IFNB <string>
+        mov edx, OFFSET string
+    ENDIF
+    call WriteString
+    IFB <newLine>
+        call Crlf
+    ENDIF
+    pop edx
+ENDM
+
+;------------------------------------------
 playerTurn PROC
 ; Description: 
 ; Input: 
@@ -71,13 +89,13 @@ printWinner PROC
 ; Output: Prints text to terminal
 ;------------------------------------------
     .IF al == 1
-        mWriteString playerName
-        mWriteString winnerMsg
+        mPrintString playerName
+        mPrintString winnerMsg
     .ELSEIF al == 2
-        mWriteString computerName
-        mWriteString winnerMsg
+        mPrintString computerName
+        mPrintString winnerMsg
     .ELSE
-        mWriteString tieMsg
+        mPrintString tieMsg
     .ENDIF
 
     ret

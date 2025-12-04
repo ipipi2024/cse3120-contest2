@@ -67,15 +67,19 @@ calculateWinner ENDP
 ;------------------------------------------
 printWinner PROC
 ; Description: 
-; Input: 
-; Output: 
-; Modifies: 
+; Input: AL = Win status
+; Output: Prints text to terminal
 ;------------------------------------------
-    pushad
+    .IF al == 1
+        mWriteString playerName
+        mWriteString winnerMsg
+    .ELSEIF al == 2
+        mWriteString computerName
+        mWriteString winnerMsg
+    .ELSE
+        mWriteString tieMsg
+    .ENDIF
 
-    ; code goes here
-
-    popad
     ret
 printWinner ENDP
 

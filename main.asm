@@ -205,15 +205,206 @@ selectSquare:
 playerTurn ENDP
 
 ;------------------------------------------
+findWinningMove PROC
+; Description: Finds a winning move for a given symbol (X or O)
+; Input: AL = symbol to check ('X' or 'O')
+; Output: BL = position (0-8) if found, 255 if not found
+; Modifies: EAX, EBX, ECX, EDX, ESI
+;------------------------------------------
+    push eax
+    push ecx
+    push edx
+    push esi
+
+    mov cl, al ; Save symbol in CL
+
+    ; Check all 9 positions
+    xor ebx, ebx ; Position counter
+
+checkPosition:
+    mov esi, OFFSET grid
+    add esi, ebx
+
+    ; Check if position is empty
+    cmp BYTE PTR [esi], '?'
+    jne nextPosition
+
+    ; Temporarily place symbol
+    mov [esi], cl
+
+    ; Check all possible lines through this position
+    call checkAllLines
+
+    ; Remove temporary placement
+    mov BYTE PTR [esi], '?'
+
+    ; If we found a win (AL != 0), return this position
+    cmp al, 0
+    jne foundWin
+
+nextPosition:
+    inc ebx
+    cmp ebx, 9
+    jl checkPosition
+
+    ; No winning move found
+    mov bl, 255
+
+foundWin:
+    pop esi
+    pop edx
+    pop ecx
+    pop eax
+    ret
+findWinningMove ENDP
+
+;------------------------------------------
+checkAllLines PROC
+; Description: Checks all 8 lines (rows, cols, diagonals) for a winner
+; Input: None (checks grid)
+; Output: AL = win status (0 = no winner, 1 = player, 2 = computer)
+; Modifies: EAX, EBX
+;------------------------------------------
+    push ebx
+
+    ; Check rows
+    mov al, 1 ; x-slope
+    mov ah, 0 ; y-slope
+    mov bl, 0 ; starting row
+    mov bh, 0 ; starting col
+    call checkLine
+    cmp dl, 0
+    jne lineFound
+
+    mov bl, 1
+    call checkLine
+    cmp dl, 0
+    jne lineFound
+
+    mov bl, 2
+    call checkLine
+    cmp dl, 0
+    jne lineFound
+
+    ; Check columns
+    mov al, 0 ; x-slope
+    mov ah, 1 ; y-slope
+    mov bl, 0 ; starting row
+    mov bh, 0 ; starting col
+    call checkLine
+    cmp dl, 0
+    jne lineFound
+
+    mov bh, 1
+    call checkLine
+    cmp dl, 0
+    jne lineFound
+
+    mov bh, 2
+    call checkLine
+    cmp dl, 0
+    jne lineFound
+
+    ; Check diagonal (top-left to bottom-right)
+    mov al, 1 ; x-slope
+    mov ah, 1 ; y-slope
+    mov bl, 0 ; starting row
+    mov bh, 0 ; starting col
+    call checkLine
+    cmp dl, 0
+    jne lineFound
+
+    ; Check diagonal (top-right to bottom-left)
+    mov al, -1 ; x-slope (cast as signed)
+    mov ah, 1  ; y-slope
+    mov bl, 0  ; starting row
+    mov bh, 2  ; starting col
+    call checkLine
+    cmp dl, 0
+    jne lineFound
+
+    ; No winner found
+    xor al, al
+    jmp checkAllDone
+
+lineFound:
+    mov al, dl
+
+checkAllDone:
+    pop ebx
+    ret
+checkAllLines ENDP
+
+;------------------------------------------
 computerTurn PROC
-; Description: 
-; Input: 
-; Output: 
-; Modifies: 
+; Description: AI move logic with strategy
+; Input: None (uses global grid)
+; Output: Places 'O' in strategic position
+; Modifies: EAX, EBX, ECX, EDX, ESI
 ;------------------------------------------
     pushad
 
-    ; code goes here
+    ; Strategy 1: Check if computer can win
+    mov al, computer
+    call findWinningMove
+    cmp bl, 255
+    jne placeMove
+
+    ; Strategy 2: Block player's winning move
+    mov al, player
+    call findWinningMove
+    cmp bl, 255
+    jne placeMove
+
+    ; Strategy 3: Take center (position 4)
+    mov bl, 4
+    mov esi, OFFSET grid
+    add esi, 4
+    cmp BYTE PTR [esi], '?'
+    je placeMove
+
+    ; Strategy 4: Take a corner (0, 2, 6, 8)
+    mov bl, 0
+    mov esi, OFFSET grid
+    cmp BYTE PTR [esi], '?'
+    je placeMove
+
+    mov bl, 2
+    mov esi, OFFSET grid
+    add esi, 2
+    cmp BYTE PTR [esi], '?'
+    je placeMove
+
+    mov bl, 6
+    mov esi, OFFSET grid
+    add esi, 6
+    cmp BYTE PTR [esi], '?'
+    je placeMove
+
+    mov bl, 8
+    mov esi, OFFSET grid
+    add esi, 8
+    cmp BYTE PTR [esi], '?'
+    je placeMove
+
+    ; Strategy 5: Take any empty square
+    xor ebx, ebx
+findEmpty:
+    mov esi, OFFSET grid
+    add esi, ebx
+    cmp BYTE PTR [esi], '?'
+    je placeMove
+    inc ebx
+    cmp ebx, 9
+    jl findEmpty
+
+placeMove:
+    ; Place 'O' at position BL
+    mov esi, OFFSET grid
+    movzx eax, bl
+    add esi, eax
+    mov al, computer
+    mov [esi], al
 
     popad
     ret

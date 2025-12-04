@@ -407,8 +407,8 @@ computerTurn ENDP
 checkLine PROC
 ; Description: Checks 3 cells along a line for a winner
 ; Input:
-;   AL = dx (x-slope: -1, 0, or 1)
-;   AH = dy (y-slope: -1, 0, or 1)
+;   AL = dx (0 or 1)
+;   AH = dy (-1, 0, or 1)
 ;   BL = starting row (0-2)
 ;   BH = starting column (0-2)
 ; Output: DL = win status (0 = no winner, 1 = player, 2 = computer)
@@ -419,15 +419,15 @@ checkLine PROC
     push esi
     push edi
 
-    ; Save dx and dy
-    movsx edi, al ; dx (sign-extended)
-    movsx esi, ah ; dy (sign-extended)
+    ; Save dx and dy, sign-extend
+    movsx edi, al
+    movsx esi, ah
 
-    ; Calculate starting position: row * 3 + col
+    ; Calculate starting position: col + (3*row)
     movzx ecx, bl ; row
     imul ecx, 3
     movzx edx, bh ; col
-    add ecx, edx  ; ecx = starting position (0-8)
+    add ecx, edx
 
     ; Load first cell
     mov ebx, OFFSET grid

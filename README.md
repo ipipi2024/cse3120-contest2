@@ -2,11 +2,11 @@ Florida Institute of Technology
 CSE 3120, Fall 2025
 Professor Marius Silaghi
 
-## Contest 1 Submission - Blackjack
+## Contest 2 Submission - Tic Tac Toe
 
 ### Usage:
 1. Add `main.asm` to a Visual Studio project.
-    * Or open `Project.sln` (project set on VS 2019, but can be "upgraded" to a newer version)
+    * Or open `Project.sln` (project set on VS 2022)
 3. Build solution and run the resulting executable.
 
 ### Gameplay:

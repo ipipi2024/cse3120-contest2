@@ -588,6 +588,7 @@ calculateWinner PROC
 
 winnerFound:
     mov al, dl ; Move winner status to AL
+    jmp calculateDone
 
 noWinner:
     xor al, al ; AL = 0 (no winner yet)

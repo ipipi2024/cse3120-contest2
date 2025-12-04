@@ -121,24 +121,20 @@ inputLoop:
     call ReadChar
 
     ; Check which key was pressed
+    or al, 20h                ; converts to lowercase
     cmp al, 'w'
     je moveUp
-    cmp al, 'W'
-    je moveUp
 
+    or al, 20h                ; converts to lowercase
     cmp al, 's'
     je moveDown
-    cmp al, 'S'
-    je moveDown
 
+    or al, 20h                ; converts to lowercase
     cmp al, 'a'
     je moveLeft
-    cmp al, 'A'
-    je moveLeft
 
+    or al, 20h                ; converts to lowercase
     cmp al, 'd'
-    je moveRight
-    cmp al, 'D'
     je moveRight
 
     cmp al, ' '

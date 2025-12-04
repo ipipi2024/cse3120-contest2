@@ -124,19 +124,14 @@ inputLoop:
     ; Check which key was pressed
     cmp al, 'w'
     je moveUp
-
     cmp al, 's'
     je moveDown
-
     cmp al, 'a'
     je moveLeft
-
     cmp al, 'd'
     je moveRight
-
     cmp al, ' '
     je selectSquare
-
     jmp inputLoop ; Invalid key, loop again
 
 moveUp:
@@ -261,10 +256,8 @@ checkAllLines PROC
     push ebx
 
     ; Check rows
-    mov al, 1 ; x-slope
-    mov ah, 0 ; y-slope
-    mov bl, 0 ; starting row
-    mov bh, 0 ; starting col
+    mov ax, 0001h
+    mov bx, 0000h
     call checkLine
     cmp dl, 0
     jne lineFound
@@ -280,10 +273,8 @@ checkAllLines PROC
     jne lineFound
 
     ; Check columns
-    mov al, 0 ; x-slope
-    mov ah, 1 ; y-slope
-    mov bl, 0 ; starting row
-    mov bh, 0 ; starting col
+    mov ax, 0100h
+    mov bx, 0000h
     call checkLine
     cmp dl, 0
     jne lineFound
@@ -299,19 +290,16 @@ checkAllLines PROC
     jne lineFound
 
     ; Check diagonal (top-left to bottom-right)
-    mov al, 1 ; x-slope
-    mov ah, 1 ; y-slope
-    mov bl, 0 ; starting row
-    mov bh, 0 ; starting col
+    mov ax, 0101h
+    mov bx, 0000h
     call checkLine
     cmp dl, 0
     jne lineFound
 
     ; Check diagonal (top-right to bottom-left)
-    mov al, -1 ; x-slope (cast as signed)
-    mov ah, 1  ; y-slope
-    mov bl, 0  ; starting row
-    mov bh, 2  ; starting col
+    mov al, -1
+    mov ah, 1
+    mov bx, 0200h
     call checkLine
     cmp dl, 0
     jne lineFound
@@ -322,7 +310,6 @@ checkAllLines PROC
 
 lineFound:
     mov al, dl
-
 checkAllDone:
     pop ebx
     ret
@@ -591,6 +578,7 @@ printWinner PROC
 ; Input: AL = Win status
 ; Output: Prints text to terminal
 ;------------------------------------------
+    call displayBoard
     .IF al == 1
         mPrintString playerName
         mPrintString winnerMsg

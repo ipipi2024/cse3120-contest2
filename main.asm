@@ -65,6 +65,21 @@ calculateWinner PROC
 calculateWinner ENDP
 
 ;------------------------------------------
+printWinner PROC
+; Description: 
+; Input: 
+; Output: 
+; Modifies: 
+;------------------------------------------
+    pushad
+
+    ; code goes here
+
+    popad
+    ret
+printWinner ENDP
+
+;------------------------------------------
 main PROC
 ; Description: Entry point - starts the Tic Tac Toe game
 ;------------------------------------------

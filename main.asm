@@ -119,21 +119,18 @@ inputLoop:
 
     ; Read a character (without echo)
     call ReadChar
+    or al, 20h; force lowercase
 
     ; Check which key was pressed
-    or al, 20h                ; converts to lowercase
     cmp al, 'w'
     je moveUp
 
-    or al, 20h                ; converts to lowercase
     cmp al, 's'
     je moveDown
 
-    or al, 20h                ; converts to lowercase
     cmp al, 'a'
     je moveLeft
 
-    or al, 20h                ; converts to lowercase
     cmp al, 'd'
     je moveRight
 
@@ -501,74 +498,61 @@ calculateWinner PROC
     push edx
     push esi
 
-    ; Check Row 0: (0,0) with dx=1, dy=0
-    mov al, 1   ; dx = 1
-    mov ah, 0   ; dy = 0
-    mov bl, 0   ; row = 0
-    mov bh, 0   ; col = 0
+    ; Check rows; dx = 1, dy = 0
+    mov ax, 0001h
+
+    ; Row 0: (0,0)
+    mov bx, 0000h
     call checkLine
     cmp dl, 0
     jne winnerFound
 
-    ; Check Row 1: (1,0) with dx=1, dy=0
-    mov al, 1   ; dx = 1
-    mov ah, 0   ; dy = 0
-    mov bl, 1   ; row = 1
-    mov bh, 0   ; col = 0
+    ; Row 1: (1,0)
+    mov bx, 0001h
     call checkLine
     cmp dl, 0
     jne winnerFound
 
-    ; Check Row 2: (2,0) with dx=1, dy=0
-    mov al, 1   ; dx = 1
-    mov ah, 0   ; dy = 0
-    mov bl, 2   ; row = 2
-    mov bh, 0   ; col = 0
+    ; Row 2: (2,0)
+    mov bx, 0002h
     call checkLine
     cmp dl, 0
     jne winnerFound
 
-    ; Check Column 0: (0,0) with dx=0, dy=1
-    mov al, 0   ; dx = 0
-    mov ah, 1   ; dy = 1
-    mov bl, 0   ; row = 0
-    mov bh, 0   ; col = 0
+    ; Check columns; dx = 0, dy = 1
+    mov ax, 0100h
+
+    ; Column 0: (0,0)
+    mov bx, 0000h
     call checkLine
     cmp dl, 0
     jne winnerFound
 
-    ; Check Column 1: (0,1) with dx=0, dy=1
-    mov al, 0   ; dx = 0
-    mov ah, 1   ; dy = 1
-    mov bl, 0   ; row = 0
-    mov bh, 1   ; col = 1
+    ; Column 1: (0,1)
+    mov bx, 0100h
     call checkLine
     cmp dl, 0
     jne winnerFound
 
-    ; Check Column 2: (0,2) with dx=0, dy=1
-    mov al, 0   ; dx = 0
-    mov ah, 1   ; dy = 1
-    mov bl, 0   ; row = 0
-    mov bh, 2   ; col = 2
+    ; Column 2: (0,2)
+    mov bx, 0200h
     call checkLine
     cmp dl, 0
     jne winnerFound
 
-    ; Check Diagonal 1: (0,0) with dx=1, dy=1
-    mov al, 1   ; dx = 1
-    mov ah, 1   ; dy = 1
-    mov bl, 0   ; row = 0
-    mov bh, 0   ; col = 0
+    ;Check diagonals
+
+    ; Diagonal 1: (0,0) to (2,2)
+    mov ax, 0101h ; dx = 1, dy = 1
+    mov bx, 0000h
     call checkLine
     cmp dl, 0
     jne winnerFound
 
-    ; Check Diagonal 2: (0,2) with dx=-1, dy=1
-    mov al, -1  ; dx = -1
-    mov ah, 1   ; dy = 1
-    mov bl, 0   ; row = 0
-    mov bh, 2   ; col = 2
+    ; Diagonal 2: (0,2) to (2,0)
+    mov al, 1
+    mov ah, -1
+    mov bx, 0200h
     call checkLine
     cmp dl, 0
     jne winnerFound

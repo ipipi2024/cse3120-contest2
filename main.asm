@@ -491,16 +491,112 @@ checkLine ENDP
 
 ;------------------------------------------
 calculateWinner PROC
-; Description: 
-; Input: 
-; Output: 
-; Modifies: 
+; Description: Checks all 8 winning lines and detects ties
+; Input: None (checks global grid)
+; Output: AL = 0 (no winner), 1 (player), 2 (computer), 3 (tie)
+; Modifies: EAX, EBX, EDX
 ;------------------------------------------
-    pushad
+    push ebx
+    push ecx
+    push edx
+    push esi
 
-    ; code goes here
+    ; Check Row 0: (0,0) with dx=1, dy=0
+    mov al, 1   ; dx = 1
+    mov ah, 0   ; dy = 0
+    mov bl, 0   ; row = 0
+    mov bh, 0   ; col = 0
+    call checkLine
+    cmp dl, 0
+    jne winnerFound
 
-    popad
+    ; Check Row 1: (1,0) with dx=1, dy=0
+    mov al, 1   ; dx = 1
+    mov ah, 0   ; dy = 0
+    mov bl, 1   ; row = 1
+    mov bh, 0   ; col = 0
+    call checkLine
+    cmp dl, 0
+    jne winnerFound
+
+    ; Check Row 2: (2,0) with dx=1, dy=0
+    mov al, 1   ; dx = 1
+    mov ah, 0   ; dy = 0
+    mov bl, 2   ; row = 2
+    mov bh, 0   ; col = 0
+    call checkLine
+    cmp dl, 0
+    jne winnerFound
+
+    ; Check Column 0: (0,0) with dx=0, dy=1
+    mov al, 0   ; dx = 0
+    mov ah, 1   ; dy = 1
+    mov bl, 0   ; row = 0
+    mov bh, 0   ; col = 0
+    call checkLine
+    cmp dl, 0
+    jne winnerFound
+
+    ; Check Column 1: (0,1) with dx=0, dy=1
+    mov al, 0   ; dx = 0
+    mov ah, 1   ; dy = 1
+    mov bl, 0   ; row = 0
+    mov bh, 1   ; col = 1
+    call checkLine
+    cmp dl, 0
+    jne winnerFound
+
+    ; Check Column 2: (0,2) with dx=0, dy=1
+    mov al, 0   ; dx = 0
+    mov ah, 1   ; dy = 1
+    mov bl, 0   ; row = 0
+    mov bh, 2   ; col = 2
+    call checkLine
+    cmp dl, 0
+    jne winnerFound
+
+    ; Check Diagonal 1: (0,0) with dx=1, dy=1
+    mov al, 1   ; dx = 1
+    mov ah, 1   ; dy = 1
+    mov bl, 0   ; row = 0
+    mov bh, 0   ; col = 0
+    call checkLine
+    cmp dl, 0
+    jne winnerFound
+
+    ; Check Diagonal 2: (0,2) with dx=-1, dy=1
+    mov al, -1  ; dx = -1
+    mov ah, 1   ; dy = 1
+    mov bl, 0   ; row = 0
+    mov bh, 2   ; col = 2
+    call checkLine
+    cmp dl, 0
+    jne winnerFound
+
+    ; No winner found, check for tie (no '?' remaining)
+    mov esi, OFFSET grid
+    mov ecx, 9
+    checkTie:
+        cmp BYTE PTR [esi], '?'
+        je noWinner ; Found empty square, game continues
+        inc esi
+        loop checkTie
+
+    ; All squares filled, it's a tie
+    mov al, 3
+    jmp calculateDone
+
+winnerFound:
+    mov al, dl ; Move winner status to AL
+
+noWinner:
+    xor al, al ; AL = 0 (no winner yet)
+
+calculateDone:
+    pop esi
+    pop edx
+    pop ecx
+    pop ebx
     ret
 calculateWinner ENDP
 

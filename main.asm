@@ -6,9 +6,10 @@ ExitProcess proto, dwExitCode:dword
 
 .data
 ; Game Variables
-grid        BYTE 9 DUP (?) ; 3x3 grid of ?'s
+grid        BYTE 9 DUP ('?') ; 3x3 grid of ?'s
 player      BYTE 'X'
 computer    BYTE 'O'
+cursorPos   BYTE 4           ; Cursor position (0-8, default center)
 
 ; Text
 playerTurnMsg   BYTE "Player's turn. Use WASD to move and Space to confirm.",0
@@ -38,16 +39,167 @@ mPrintString MACRO string, newLine
 ENDM
 
 ;------------------------------------------
-playerTurn PROC
-; Description: 
-; Input: 
-; Output: 
-; Modifies: 
+displayBoard PROC
+; Description: Displays the 3x3 grid with cursor highlighting
+; Input: cursorPos (global variable)
+; Output: Prints board to console
+; Modifies: EAX, EBX, ECX, EDX, ESI
 ;------------------------------------------
     pushad
 
-    ; code goes here
+    call Clrscr
+    mPrintString playerTurnMsg
+    call Crlf
 
+    mov esi, OFFSET grid
+    xor ebx, ebx ; Position counter (0-8)
+
+    displayLoop:
+        ; Print opening bracket
+        mov al, '['
+        call WriteChar
+
+        ; Check if this is the cursor position
+        mov al, cursorPos
+        cmp bl, al
+        jne notCursor
+
+        ; Highlight cursor position
+        mov eax, 14 ; Yellow color
+        call SetTextColor
+
+    notCursor:
+        ; Print cell content
+        mov al, [esi]
+        call WriteChar
+
+        ; Reset color
+        mov eax, 7 ; White color
+        call SetTextColor
+
+        ; Print closing bracket
+        mov al, ']'
+        call WriteChar
+
+        inc esi
+        inc ebx
+
+        ; Check if end of row (every 3 cells)
+        mov eax, ebx
+        mov ecx, 3
+        xor edx, edx
+        div ecx
+        cmp edx, 0
+        jne continueRow
+
+        ; New row
+        call Crlf
+
+    continueRow:
+        cmp ebx, 9
+        jl displayLoop
+
+    call Crlf
+    popad
+    ret
+displayBoard ENDP
+
+;------------------------------------------
+playerTurn PROC
+; Description: Handles player input for cursor movement and square selection
+; Input: None (uses global cursorPos and grid)
+; Output: Places 'X' in selected grid position
+; Modifies: EAX, EBX, ECX, EDX, ESI
+;------------------------------------------
+    pushad
+
+inputLoop:
+    ; Display the board with current cursor
+    call displayBoard
+
+    ; Read a character (without echo)
+    call ReadChar
+
+    ; Check which key was pressed
+    cmp al, 'w'
+    je moveUp
+    cmp al, 'W'
+    je moveUp
+
+    cmp al, 's'
+    je moveDown
+    cmp al, 'S'
+    je moveDown
+
+    cmp al, 'a'
+    je moveLeft
+    cmp al, 'A'
+    je moveLeft
+
+    cmp al, 'd'
+    je moveRight
+    cmp al, 'D'
+    je moveRight
+
+    cmp al, ' '
+    je selectSquare
+
+    jmp inputLoop ; Invalid key, loop again
+
+moveUp:
+    ; Move up (subtract 3 if >= 3)
+    movzx eax, cursorPos
+    cmp eax, 3
+    jl inputLoop ; Already at top row
+    sub eax, 3
+    mov cursorPos, al
+    jmp inputLoop
+
+moveDown:
+    ; Move down (add 3 if <= 5)
+    movzx eax, cursorPos
+    cmp eax, 5
+    jg inputLoop ; Already at bottom row
+    add eax, 3
+    mov cursorPos, al
+    jmp inputLoop
+
+moveLeft:
+    ; Move left (subtract 1 if not at left edge)
+    movzx eax, cursorPos
+    mov ebx, 3
+    xor edx, edx
+    div ebx
+    cmp edx, 0 ; Check if at left edge (position % 3 == 0)
+    je inputLoop
+    dec cursorPos
+    jmp inputLoop
+
+moveRight:
+    ; Move right (add 1 if not at right edge)
+    movzx eax, cursorPos
+    mov ebx, 3
+    xor edx, edx
+    div ebx
+    cmp edx, 2 ; Check if at right edge (position % 3 == 2)
+    je inputLoop
+    inc cursorPos
+    jmp inputLoop
+
+selectSquare:
+    ; Check if selected square is empty ('?')
+    mov esi, OFFSET grid
+    movzx eax, cursorPos
+    add esi, eax
+
+    cmp BYTE PTR [esi], '?'
+    jne inputLoop ; Not empty, ignore selection
+
+    ; Place 'X' at cursor position
+    mov al, player
+    mov [esi], al
+
+    ; Selection successful, exit
     popad
     ret
 playerTurn ENDP

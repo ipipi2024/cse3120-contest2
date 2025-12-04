@@ -68,7 +68,26 @@ calculateWinner ENDP
 main PROC
 ; Description: Entry point - starts the Tic Tac Toe game
 ;------------------------------------------
-    ; code goes here
+    ; AL = Status byte for win status
+    ;   0 - No winner
+    ;   1 - Player wins
+    ;   2 - Computer wins
+    ;   3 - Tie
+    mov al, 0 
+
+    takeTurns:
+    call playerTurn
+    call calculateWinner ; modifies al
+    cmp al, 0
+    jnz win ; jump if there is a win status
+
+    call computerTurn
+    call calculateWinner
+    cmp al, 0
+    jnz win
+
+    win:
+    call printWinner
     invoke ExitProcess, 0
 main ENDP
 

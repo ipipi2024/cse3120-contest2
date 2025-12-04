@@ -1,0 +1,38 @@
+# Visual Studio files
+.vs/
+*.suo
+*.user
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+
+# Build outputs
+Debug/
+Release/
+x64/
+x86/
+[Dd]ebug/
+[Rr]elease/
+*.obj
+*.exe
+*.ilk
+*.pdb
+*.idb
+*.log
+
+# Assembly listing files
+*.lst
+*.cod
+
+# Temporary files
+temp.asm
+*.temp.asm
+*.err
+*~
+*.tmp
+*.bak
+*.swp
+
+#docs
+*.docx

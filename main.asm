@@ -121,24 +121,20 @@ inputLoop:
     call ReadChar
 
     ; Check which key was pressed
+    or al, 20h                ; converts to lowercase
     cmp al, 'w'
     je moveUp
-    cmp al, 'W'
-    je moveUp
 
+    or al, 20h                ; converts to lowercase
     cmp al, 's'
     je moveDown
-    cmp al, 'S'
-    je moveDown
 
+    or al, 20h                ; converts to lowercase
     cmp al, 'a'
     je moveLeft
-    cmp al, 'A'
-    je moveLeft
 
+    or al, 20h                ; converts to lowercase
     cmp al, 'd'
-    je moveRight
-    cmp al, 'D'
     je moveRight
 
     cmp al, ' '
@@ -437,26 +433,16 @@ checkLine PROC
 
     mov ecx, 3 ; Check 3 cells
     checkCell:
-    movzx ebx, BYTE PTR [edx] ; Load cell value
-    or si, bx ; Accumulates values into SI
-
-    ; Calculate offset: al + 3*ah
-    movzx ebx, al
-    add edx, ebx ; Advance by x-slope
-    movzx ebx, ah
-    imul ebx, 3
-    add edx, ebx ; Advance by y-slope
+    or si, [edx] ; Accumulates values into SI
+    add edx, al ; Advance 
+    add edx, 3*ah
     loop checkCell
 
-    xor edx, edx
-    movzx ebx, player
-    .IF si == bx ; Accumulated value matches player symbol
+    mov edx, 0
+    .IF si == player ; Accumulated value matches player symbol
         mov dl, 1
-    .ELSE
-        movzx ebx, computer
-        .IF si == bx ; Matches computer symbol
-            mov dl, 2
-        .ENDIF
+    .ELSEIF si == computer ; Matches computer symbol
+        mov dl, 2
     .ENDIF
 
     pop esi

@@ -71,17 +71,36 @@ computerTurn ENDP
 checkLine PROC
 ; Description: 
 ; Input:
-;   AH = x-slope (0 or 1)
-;   AL = y-slope (-1, 0, 1)
+;   AL = x-slope (0 or 1)
+;   AH = y-slope (-1, 0, 1)
 ;   BL = starting row (0-2)
 ;   BH = starting column (0-2)
 ; Output: DL = win status (1 = player, 2 = computer)
 ;------------------------------------------
-    pushad
+    push ecx
+    push edx
+    push esi
 
-    ; code goes here
+    mov edx, OFFSET grid ; Cell (0, 0) of grid
+    add edx, [bl + 3*bh] ; Moves to starting cell
+    
+    mov ecx, 3 ; Check 3 cells
+    checkCell:
+    or si, [edx] ; Accumulates values into SI
+    add edx, al ; Advance 
+    add edx, 3*ah
+    loop checkCell
 
-    popad
+    mov edx, 0
+    .IF si == player ; Accumulated value matches player symbol
+        mov dl, 1
+    .ELSEIF si == computer ; Matches computer symbol
+        mov dl, 2
+    .ENDIF
+
+    pop esi
+    pop edx
+    pop ecx
     ret
 checkLine ENDP
 

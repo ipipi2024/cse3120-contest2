@@ -20,6 +20,21 @@ tieMsg BYTE "It's a tie!",0
 .code
 
 ;------------------------------------------
+playerTurn PROC
+; Description: 
+; Input: 
+; Output: 
+; Modifies: 
+;------------------------------------------
+    pushad
+
+    ; code goes here
+
+    popad
+    ret
+playerTurn ENDP
+
+;------------------------------------------
 calculateWinner PROC
 ; Description: 
 ; Input: 

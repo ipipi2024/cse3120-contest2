@@ -68,6 +68,24 @@ computerTurn PROC
 computerTurn ENDP
 
 ;------------------------------------------
+checkLine PROC
+; Description: 
+; Input:
+;   AH = x-slope (0 or 1)
+;   AL = y-slope (-1, 0, 1)
+;   BL = starting row (0-2)
+;   BH = starting column (0-2)
+; Output: DL = win status (1 = player, 2 = computer)
+;------------------------------------------
+    pushad
+
+    ; code goes here
+
+    popad
+    ret
+checkLine ENDP
+
+;------------------------------------------
 calculateWinner PROC
 ; Description: 
 ; Input: 
@@ -110,7 +128,7 @@ main PROC
     ;   1 - Player wins
     ;   2 - Computer wins
     ;   3 - Tie
-    mov al, 0 
+    mov al, 0 ; Initialize to no win
 
     takeTurns:
     call playerTurn

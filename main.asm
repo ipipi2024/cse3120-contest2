@@ -408,43 +408,80 @@ computerTurn ENDP
 
 ;------------------------------------------
 checkLine PROC
-; Description: 
+; Description: Checks 3 cells along a line for a winner
 ; Input:
-;   AL = x-slope (0 or 1)
-;   AH = y-slope (-1, 0, 1)
+;   AL = dx (x-slope: -1, 0, or 1)
+;   AH = dy (y-slope: -1, 0, or 1)
 ;   BL = starting row (0-2)
 ;   BH = starting column (0-2)
-; Output: DL = win status (1 = player, 2 = computer)
+; Output: DL = win status (0 = no winner, 1 = player, 2 = computer)
 ;------------------------------------------
     push eax
     push ebx
     push ecx
     push esi
+    push edi
 
-    xor esi, esi ; Clear SI register for accumulation
-    mov edx, OFFSET grid ; Cell (0, 0) of grid
+    ; Save dx and dy
+    movsx edi, al ; dx (sign-extended)
+    movsx esi, ah ; dy (sign-extended)
 
-    ; Calculate starting cell offset: bl + 3*bh
-    movzx ecx, bh
+    ; Calculate starting position: row * 3 + col
+    movzx ecx, bl ; row
     imul ecx, 3
-    movzx ebx, bl
-    add ecx, ebx
-    add edx, ecx ; Moves to starting cell
+    movzx edx, bh ; col
+    add ecx, edx  ; ecx = starting position (0-8)
 
-    mov ecx, 3 ; Check 3 cells
-    checkCell:
-    or si, [edx] ; Accumulates values into SI
-    add edx, al ; Advance 
-    add edx, 3*ah
-    loop checkCell
+    ; Load first cell
+    mov ebx, OFFSET grid
+    add ebx, ecx
+    mov al, BYTE PTR [ebx]
 
-    mov edx, 0
-    .IF si == player ; Accumulated value matches player symbol
-        mov dl, 1
-    .ELSEIF si == computer ; Matches computer symbol
-        mov dl, 2
-    .ENDIF
+    ; Check if first cell is empty
+    cmp al, '?'
+    je noWinner
 
+    ; Check second cell: position + dy*3 + dx
+    mov edx, esi ; dy
+    imul edx, 3  ; dy * 3
+    add edx, edi ; dy * 3 + dx
+    add ecx, edx ; new position
+
+    mov ebx, OFFSET grid
+    add ebx, ecx
+    cmp al, BYTE PTR [ebx]
+    jne noWinner ; Second cell doesn't match first
+
+    ; Check third cell: position + dy*3 + dx (again)
+    mov edx, esi ; dy
+    imul edx, 3  ; dy * 3
+    add edx, edi ; dy * 3 + dx
+    add ecx, edx ; new position
+
+    mov ebx, OFFSET grid
+    add ebx, ecx
+    cmp al, BYTE PTR [ebx]
+    jne noWinner ; Third cell doesn't match first
+
+    ; All three match! Check which symbol
+    cmp al, player
+    je playerWins
+    cmp al, computer
+    je computerWins
+
+noWinner:
+    xor edx, edx ; DL = 0
+    jmp checkDone
+
+playerWins:
+    mov dl, 1
+    jmp checkDone
+
+computerWins:
+    mov dl, 2
+
+checkDone:
+    pop edi
     pop esi
     pop ecx
     pop ebx

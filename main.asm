@@ -18,11 +18,28 @@ winnerMsg BYTE " wins!",0
 tieMsg BYTE "It's a tie!",0
 
 .code
+
+;------------------------------------------
+calculateWinner PROC
+; Description: 
+; Input: 
+; Output: 
+; Modifies: 
+;------------------------------------------
+    pushad
+
+    ; code goes here
+
+    popad
+    ret
+calculateWinner ENDP
+
 ;------------------------------------------
 main PROC
 ; Description: Entry point - starts the Tic Tac Toe game
 ;------------------------------------------
     ; code goes here
     invoke ExitProcess, 0
+main ENDP
 
-ENDP main
+END main

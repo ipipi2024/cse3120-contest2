@@ -77,30 +77,49 @@ checkLine PROC
 ;   BH = starting column (0-2)
 ; Output: DL = win status (1 = player, 2 = computer)
 ;------------------------------------------
+    push eax
+    push ebx
     push ecx
-    push edx
     push esi
 
+    xor esi, esi ; Clear SI register for accumulation
     mov edx, OFFSET grid ; Cell (0, 0) of grid
-    add edx, [bl + 3*bh] ; Moves to starting cell
-    
+
+    ; Calculate starting cell offset: bl + 3*bh
+    movzx ecx, bh
+    imul ecx, 3
+    movzx ebx, bl
+    add ecx, ebx
+    add edx, ecx ; Moves to starting cell
+
     mov ecx, 3 ; Check 3 cells
     checkCell:
-    or si, [edx] ; Accumulates values into SI
-    add edx, al ; Advance 
-    add edx, 3*ah
+    movzx ebx, BYTE PTR [edx] ; Load cell value
+    or si, bx ; Accumulates values into SI
+
+    ; Calculate offset: al + 3*ah
+    movzx ebx, al
+    add edx, ebx ; Advance by x-slope
+    movzx ebx, ah
+    imul ebx, 3
+    add edx, ebx ; Advance by y-slope
     loop checkCell
 
-    mov edx, 0
-    .IF si == player ; Accumulated value matches player symbol
+    xor edx, edx
+    movzx ebx, player
+    .IF si == bx ; Accumulated value matches player symbol
         mov dl, 1
-    .ELSEIF si == computer ; Matches computer symbol
-        mov dl, 2
+    .ELSE
+        movzx ebx, computer
+        .IF si == bx ; Matches computer symbol
+            mov dl, 2
+        .ENDIF
     .ENDIF
 
     pop esi
-    pop edx
     pop ecx
+    pop ebx
+    pop eax
     ret
 checkLine ENDP
 

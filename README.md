@@ -6,7 +6,7 @@ Professor Marius Silaghi
 
 ### Usage:
 1. Add `main.asm` to a Visual Studio project.
-    * Or open `Project.sln` (project set on VS 2022)
+    * Or open `Project.sln` (project set on VS 2019)
 3. Build solution and run the resulting executable.
 
 ### Gameplay:
